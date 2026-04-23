@@ -133,13 +133,222 @@ body {
 
 .upload-content,
 .query-content {
-  min-height: 200px;
+  min-height: auto;
+  display: block;
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 0.375rem;
+}
+
+/* UploadBox Component Styles */
+.upload-box {
+  width: 100%;
+}
+
+.upload-dropzone {
+  border: 2px dashed var(--border-color);
+  border-radius: 0.5rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  background-color: var(--bg-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--primary-color);
+  background-color: #f0f0ff;
+}
+
+.upload-dropzone.dragging {
+  border-color: var(--primary-color);
+  background-color: #e0e7ff;
+  transform: scale(1.02);
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.upload-text {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.upload-browse {
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.upload-browse:hover {
+  color: var(--primary-hover);
+}
+
+.upload-subtext {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.upload-input {
+  display: none;
+}
+
+.upload-files-list {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.upload-files-list h4 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.upload-files-list ul {
+  list-style: none;
+}
+
+.upload-files-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--bg-primary);
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color);
+}
+
+.file-name {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.file-size {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.upload-button {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 0.875rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-button:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.upload-button:disabled {
+  background-color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* QueryInput Component Styles */
+.query-input-container {
+  width: 100%;
+}
+
+.query-form {
+  width: 100%;
+}
+
+.query-input-wrapper {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.query-input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.query-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+.query-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.query-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.query-submit-button {
+  padding: 0.75rem 1.25rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary);
-  border: 2px dashed var(--border-color);
-  border-radius: 0.375rem;
+  min-width: 3rem;
+}
+
+.query-submit-button:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.query-submit-button:disabled {
+  background-color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.submit-icon,
+.loading-spinner {
+  display: inline-block;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Chat Page Styles */
