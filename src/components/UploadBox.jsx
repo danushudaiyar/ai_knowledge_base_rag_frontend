@@ -1,13 +1,18 @@
 import { useState, useRef } from 'react';
+import { uploadFiles } from '../services/api';
 
-const UploadBox = ({ onUpload }) => {
+const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles(files);
+    setError(null);
   };
 
   const handleDragOver = (e) => {
@@ -25,11 +30,51 @@ const UploadBox = ({ onUpload }) => {
     setIsDragging(false);
     const files = Array.from(e.dataTransfer.files);
     setSelectedFiles(files);
+    setError(null);
   };
 
-  const handleUploadClick = () => {
-    if (selectedFiles.length > 0 && onUpload) {
-      onUpload(selectedFiles);
+  const handleUploadClick = async () => {
+    if (selectedFiles.length === 0) return;
+
+    setIsUploading(true);
+    setError(null);
+    setUploadProgress(0);
+
+    try {
+      // Call custom onUpload if provided
+      if (onUpload) {
+        await onUpload(selectedFiles);
+      }
+
+      // Upload files via API
+      const results = await uploadFiles(selectedFiles);
+      
+      setUploadProgress(100);
+      
+      // Success callback
+      if (onUploadSuccess) {
+        onUploadSuccess(results);
+      }
+
+      // Clear selected files after successful upload
+      setSelectedFiles([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+
+      // Show success message
+      alert(`Successfully uploaded ${selectedFiles.length} file(s)!`);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      setError(err.message || 'Failed to upload files. Please try again.');
+      
+      // Error callback
+      if (onUploadError) {
+        onUploadError(err);
+      }
+    } finally {
+      setIsUploading(false);
+      setTimeout(() => setUploadProgress(0), 1000);
     }
   };
 
@@ -80,12 +125,38 @@ const UploadBox = ({ onUpload }) => {
         </div>
       )}
 
+      {error && (
+        <div className="upload-error">
+          <span className="error-icon">⚠️</span>
+          <span className="error-message">{error}</span>
+        </div>
+      )}
+
+      {isUploading && uploadProgress > 0 && (
+        <div className="upload-progress">
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+          <span className="progress-text">{uploadProgress}%</span>
+        </div>
+      )}
+
       <button
         className="upload-button"
         onClick={handleUploadClick}
-        disabled={selectedFiles.length === 0}
+        disabled={selectedFiles.length === 0 || isUploading}
       >
-        Upload {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ''}
+        {isUploading ? (
+          <>
+            <span className="loading-spinner">⏳</span>
+            Uploading...
+          </>
+        ) : (
+          <>Upload {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ''}</>
+        )}
       </button>
     </div>
   );

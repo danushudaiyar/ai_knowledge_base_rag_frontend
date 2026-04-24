@@ -4,7 +4,17 @@ import QueryInput from '../components/QueryInput';
 const Dashboard = () => {
   const handleUpload = (files) => {
     console.log('Uploading files:', files);
-    // TODO: Implement upload logic with API
+    // This will be called before API upload
+  };
+
+  const handleUploadSuccess = (results) => {
+    console.log('Upload successful:', results);
+    // Handle successful upload (e.g., refresh document list, show notification)
+  };
+
+  const handleUploadError = (error) => {
+    console.error('Upload failed:', error);
+    // Handle upload error (e.g., show error notification)
   };
 
   const handleQuery = (question) => {
@@ -23,7 +33,11 @@ const Dashboard = () => {
       <section className="upload-section">
         <h2>Upload Documents</h2>
         <div className="upload-content">
-          <UploadBox onUpload={handleUpload} />
+          <UploadBox 
+            onUpload={handleUpload}
+            onUploadSuccess={handleUploadSuccess}
+            onUploadError={handleUploadError}
+          />
         </div>
       </section>
 

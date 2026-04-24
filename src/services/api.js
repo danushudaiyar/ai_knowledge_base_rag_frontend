@@ -135,4 +135,40 @@ export const authAPI = {
   },
 };
 
+// Upload file using native fetch API with FormData
+export const uploadFile = async (file, onProgress) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const token = localStorage.getItem('token');
+
+  try {
+    const response = await fetch(`${baseURL}/api/v1/documents/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw error;
+  }
+};
+
+// Upload multiple files
+export const uploadFiles = async (files, onProgress) => {
+  const uploadPromises = files.map((file) => uploadFile(file, onProgress));
+  return Promise.all(uploadPromises);
+};
+
 export default api;
