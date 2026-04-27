@@ -7,12 +7,14 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleFileSelect = (e) => {
     const files = Array.from(e.target.files);
     setSelectedFiles(files);
     setError(null);
+    setSuccessMessage(null);
   };
 
   const handleDragOver = (e) => {
@@ -31,6 +33,7 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
     const files = Array.from(e.dataTransfer.files);
     setSelectedFiles(files);
     setError(null);
+    setSuccessMessage(null);
   };
 
   const handleUploadClick = async () => {
@@ -38,6 +41,7 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
 
     setIsUploading(true);
     setError(null);
+    setSuccessMessage(null);
     setUploadProgress(0);
 
     try {
@@ -56,14 +60,18 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
         onUploadSuccess(results);
       }
 
+      // Show success message
+      const fileCount = selectedFiles.length;
+      setSuccessMessage(`Successfully uploaded ${fileCount} file${fileCount > 1 ? 's' : ''}!`);
+
       // Clear selected files after successful upload
       setSelectedFiles([]);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
 
-      // Show success message
-      alert(`Successfully uploaded ${selectedFiles.length} file(s)!`);
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
       console.error('Upload failed:', err);
       setError(err.message || 'Failed to upload files. Please try again.');
@@ -129,6 +137,13 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
         <div className="upload-error">
           <span className="error-icon">⚠️</span>
           <span className="error-message">{error}</span>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="upload-success">
+          <span className="success-icon">✅</span>
+          <span className="success-message">{successMessage}</span>
         </div>
       )}
 
