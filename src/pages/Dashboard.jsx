@@ -1,5 +1,6 @@
 import UploadBox from '../components/UploadBox';
 import QueryInput from '../components/QueryInput';
+import { askQuery } from '../services/api';
 
 const Dashboard = () => {
   const handleUpload = (files) => {
@@ -17,9 +18,15 @@ const Dashboard = () => {
     // Handle upload error (e.g., show error notification)
   };
 
-  const handleQuery = (question) => {
-    console.log('Submitting query:', question);
-    // TODO: Implement query logic with API
+  const handleQuery = async (question) => {
+    try {
+      const response = await askQuery(question);
+      console.log('Query response:', response);
+      // Handle the response (e.g., display answer, navigate to results page)
+    } catch (error) {
+      console.error('Query error:', error);
+      // Handle error (e.g., show error notification)
+    }
   };
 
   return (

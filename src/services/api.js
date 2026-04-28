@@ -171,4 +171,15 @@ export const uploadFiles = async (files, onProgress) => {
   return Promise.all(uploadPromises);
 };
 
+// Simplified query function
+export const askQuery = async (question, documentIds = []) => {
+  try {
+    const response = await queryAPI.ask(question, documentIds);
+    return response.data;
+  } catch (error) {
+    console.error('Query error:', error);
+    throw error;
+  }
+};
+
 export default api;
