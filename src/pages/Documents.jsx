@@ -1,3 +1,6 @@
+import FileList from '../components/FileList';
+import UploadBox from '../components/UploadBox';
+
 const Documents = () => {
   return (
     <div className="documents-page">
@@ -6,7 +9,8 @@ const Documents = () => {
         <p>Manage your uploaded documents</p>
       </div>
       <div className="documents-container">
-        {/* Document list will be implemented here */}
+        <UploadBox />
+        <FileList />
       </div>
     </div>
   );
