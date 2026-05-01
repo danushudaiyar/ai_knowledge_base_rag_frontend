@@ -89,6 +89,11 @@ export const documentAPI = {
   update: (id, data) => {
     return api.patch(`/api/v1/documents/${id}`, data);
   },
+
+  // Upload from URL
+  uploadFromUrl: (data) => {
+    return api.post('/api/v1/documents/upload-url', data);
+  },
 };
 
 export const queryAPI = {

@@ -1,8 +1,11 @@
 import { useState, useRef } from 'react';
-import { uploadFiles } from '../services/api';
+import { uploadFiles, documentAPI } from '../services/api';
 
 const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
+  const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'url'
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [urlInput, setUrlInput] = useState('');
+  const [urlList, setUrlList] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -36,8 +39,34 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
     setSuccessMessage(null);
   };
 
+  const handleAddUrl = () => {
+    if (!urlInput.trim()) return;
+    
+    // Basic URL validation
+    try {
+      new URL(urlInput);
+      setUrlList([...urlList, urlInput.trim()]);
+      setUrlInput('');
+      setError(null);
+    } catch (err) {
+      setError('Please enter a valid URL');
+    }
+  };
+
+  const handleRemoveUrl = (index) => {
+    setUrlList(urlList.filter((_, i) => i !== index));
+  };
+
+  const handleUrlKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddUrl();
+    }
+  };
+
   const handleUploadClick = async () => {
-    if (selectedFiles.length === 0) return;
+    if (uploadMode === 'file' && selectedFiles.length === 0) return;
+    if (uploadMode === 'url' && urlList.length === 0) return;
 
     setIsUploading(true);
     setError(null);
@@ -45,13 +74,20 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
     setUploadProgress(0);
 
     try {
-      // Call custom onUpload if provided
-      if (onUpload) {
-        await onUpload(selectedFiles);
-      }
+      let results;
+      
+      if (uploadMode === 'file') {
+        // Call custom onUpload if provided
+        if (onUpload) {
+          await onUpload(selectedFiles);
+        }
 
-      // Upload files via API
-      const results = await uploadFiles(selectedFiles);
+        // Upload files via API
+        results = await uploadFiles(selectedFiles);
+      } else {
+        // Upload URLs via API
+        results = await documentAPI.uploadFromUrl({ urls: urlList });
+      }
       
       setUploadProgress(100);
       
@@ -61,20 +97,25 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
       }
 
       // Show success message
-      const fileCount = selectedFiles.length;
-      setSuccessMessage(`Successfully uploaded ${fileCount} file${fileCount > 1 ? 's' : ''}!`);
+      const count = uploadMode === 'file' ? selectedFiles.length : urlList.length;
+      const type = uploadMode === 'file' ? 'file' : 'URL';
+      setSuccessMessage(`Successfully uploaded ${count} ${type}${count > 1 ? 's' : ''}!`);
 
-      // Clear selected files after successful upload
-      setSelectedFiles([]);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      // Clear inputs after successful upload
+      if (uploadMode === 'file') {
+        setSelectedFiles([]);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      } else {
+        setUrlList([]);
       }
 
       // Auto-hide success message after 5 seconds
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
       console.error('Upload failed:', err);
-      setError(err.message || 'Failed to upload files. Please try again.');
+      setError(err.message || 'Failed to upload. Please try again.');
       
       // Error callback
       if (onUploadError) {
@@ -92,32 +133,82 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
 
   return (
     <div className="upload-box">
-      <div
-        className={`upload-dropzone ${isDragging ? 'dragging' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <div className="upload-icon">📁</div>
-        <p className="upload-text">
-          Drag & drop files here or{' '}
-          <span className="upload-browse" onClick={handleBrowseClick}>
-            browse
-          </span>
-        </p>
-        <p className="upload-subtext">Supported: PDF, DOCX, TXT, URLs</p>
-        
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept=".pdf,.docx,.txt"
-          onChange={handleFileSelect}
-          className="upload-input"
-        />
+      {/* Upload Mode Tabs */}
+      <div className="upload-tabs">
+        <button
+          className={`upload-tab ${uploadMode === 'file' ? 'active' : ''}`}
+          onClick={() => {
+            setUploadMode('file');
+            setError(null);
+          }}
+        >
+          📁 File Upload
+        </button>
+        <button
+          className={`upload-tab ${uploadMode === 'url' ? 'active' : ''}`}
+          onClick={() => {
+            setUploadMode('url');
+            setError(null);
+          }}
+        >
+          🔗 URL Upload
+        </button>
       </div>
 
-      {selectedFiles.length > 0 && (
+      {/* File Upload Mode */}
+      {uploadMode === 'file' && (
+        <div
+          className={`upload-dropzone ${isDragging ? 'dragging' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <div className="upload-icon">📁</div>
+          <p className="upload-text">
+            Drag & drop files here or{' '}
+            <span className="upload-browse" onClick={handleBrowseClick}>
+              browse
+            </span>
+          </p>
+          <p className="upload-subtext">Supported: PDF, DOCX, TXT</p>
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept=".pdf,.docx,.txt"
+            onChange={handleFileSelect}
+            className="upload-input"
+          />
+        </div>
+      )}
+
+      {/* URL Upload Mode */}
+      {uploadMode === 'url' && (
+        <div className="url-upload-section">
+          <div className="url-input-wrapper">
+            <input
+              type="url"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              onKeyPress={handleUrlKeyPress}
+              placeholder="Enter URL (e.g., https://example.com/document.pdf)"
+              className="url-input"
+            />
+            <button
+              type="button"
+              onClick={handleAddUrl}
+              className="add-url-button"
+              disabled={!urlInput.trim()}
+            >
+              Add URL
+            </button>
+          </div>
+          <p className="url-subtext">Enter URLs to documents you want to process</p>
+        </div>
+      )}
+
+      {uploadMode === 'file' && selectedFiles.length > 0 && (
         <div className="upload-files-list">
           <h4>Selected Files ({selectedFiles.length})</h4>
           <ul>
@@ -127,6 +218,26 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
                 <span className="file-size">
                   {(file.size / 1024).toFixed(2)} KB
                 </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {uploadMode === 'url' && urlList.length > 0 && (
+        <div className="upload-files-list">
+          <h4>Added URLs ({urlList.length})</h4>
+          <ul>
+            {urlList.map((url, index) => (
+              <li key={index}>
+                <span className="file-name url-text">{url}</span>
+                <button
+                  className="remove-url-button"
+                  onClick={() => handleRemoveUrl(index)}
+                  title="Remove URL"
+                >
+                  ✕
+                </button>
               </li>
             ))}
           </ul>
@@ -162,7 +273,7 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
       <button
         className="upload-button"
         onClick={handleUploadClick}
-        disabled={selectedFiles.length === 0 || isUploading}
+        disabled={(uploadMode === 'file' ? selectedFiles.length === 0 : urlList.length === 0) || isUploading}
       >
         {isUploading ? (
           <>
@@ -170,7 +281,10 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
             Uploading...
           </>
         ) : (
-          <>Upload {selectedFiles.length > 0 ? `(${selectedFiles.length})` : ''}</>
+          <>Upload {uploadMode === 'file' 
+            ? (selectedFiles.length > 0 ? `(${selectedFiles.length})` : '')
+            : (urlList.length > 0 ? `(${urlList.length})` : '')}
+          </>
         )}
       </button>
     </div>
