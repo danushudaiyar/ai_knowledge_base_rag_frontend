@@ -1,20 +1,26 @@
 import { useState, useEffect } from 'react';
 import { documentAPI } from '../services/api';
 import Loader from './Loader';
+import SkeletonLoader from './SkeletonLoader';
 
 const FileList = () => {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchFiles();
   }, []);
 
-  const fetchFiles = async () => {
+  const fetchFiles = async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       const response = await documentAPI.getAll();
       setFiles(response.data.documents || response.data || []);
@@ -23,6 +29,7 @@ const FileList = () => {
       console.error('Error fetching files:', err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -59,7 +66,12 @@ const FileList = () => {
   if (loading) {
     return (
       <div className="file-list-loading">
-        <Loader />
+        <div className="file-list-header">
+          <h2>Uploaded Documents</h2>
+        </div>
+        <div className="skeleton-list">
+          <SkeletonLoader variant="file-item" count={5} />
+        </div>
       </div>
     );
   }
@@ -83,7 +95,12 @@ const FileList = () => {
     );
   }
 
-  return (
+          onClick={() => fetchFiles(true)} 
+          className={`refresh-button ${refreshing ? 'btn-loading' : ''}`}
+          disabled={refreshing}
+        >
+          {refreshing && <span className="btn-loader"></span>}
+          {refreshing ? 'Refreshing...' : '🔄 Refresh'}
     <div className="file-list">
       <div className="file-list-header">
         <h2>Uploaded Documents ({files.length})</h2>
@@ -121,9 +138,10 @@ const FileList = () => {
                   <button
                     onClick={() => handleDelete(file.id)}
                     disabled={deletingId === file.id}
-                    className="delete-button"
+                    className={`delete-button ${deletingId === file.id ? 'btn-loading' : ''}`}
                   >
-                    {deletingId === file.id ? 'Deleting...' : 'Delete'}
+                    {deletingId === file.id && <span className="btn-loader"></span>}
+                    {deletingId === file.id ? 'Deleting...' : '🗑️ Delete'}
                   </button>
                 </td>
               </tr>

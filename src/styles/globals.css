@@ -1068,3 +1068,203 @@ body {
     font-size: 0.8rem;
   }
 }
+
+/* Enhanced Loading States and Animations */
+
+/* Fade-in animation for query results */
+.query-result-fade-in {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Query loading skeleton */
+.query-loading {
+  margin-top: 1.5rem;
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Smooth transitions for all interactive elements */
+button,
+.upload-dropzone,
+.query-input-wrapper,
+.file-list-table tbody tr,
+.source-item,
+.nav-link {
+  transition: all 0.2s ease;
+}
+
+/* Enhanced button states */
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Loading state overlay for file list */
+.file-list-loading .skeleton-list {
+  animation: fadeIn 0.4s ease-in;
+}
+
+/* Stagger animation for skeleton items */
+.skeleton-list > div:nth-child(1) { animation-delay: 0s; }
+.skeleton-list > div:nth-child(2) { animation-delay: 0.1s; }
+.skeleton-list > div:nth-child(3) { animation-delay: 0.2s; }
+.skeleton-list > div:nth-child(4) { animation-delay: 0.3s; }
+.skeleton-list > div:nth-child(5) { animation-delay: 0.4s; }
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible for accessibility */
+button:focus-visible,
+input:focus-visible,
+.upload-dropzone:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Disabled state improvements */
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Enhanced hover states with micro-interactions */
+.refresh-button,
+.retry-button,
+.delete-button,
+.upload-button,
+.query-submit-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.refresh-button::after,
+.retry-button::after,
+.delete-button::after,
+.upload-button::after,
+.query-submit-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.refresh-button:hover::after,
+.retry-button:hover::after,
+.delete-button:hover::after,
+.upload-button:hover::after,
+.query-submit-button:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Success message fade out */
+.upload-success {
+  animation: fadeIn 0.3s ease-in, fadeOut 0.5s ease-out 4.5s forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Error shake animation */
+.upload-error,
+.query-error {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+/* Pulsing effect for processing status */
+.status-badge.processing {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Loading spinner improvements */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Table row fade-in when loading completes */
+.file-list-table tbody tr {
+  animation: fadeInRow 0.3s ease-out backwards;
+}
+
+.file-list-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.file-list-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.file-list-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.file-list-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.file-list-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Empty state subtle animation */
+.file-list-empty {
+  animation: fadeIn 0.5s ease-in;
+}
+

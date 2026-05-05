@@ -258,32 +258,35 @@ const UploadBox = ({ onUpload, onUploadSuccess, onUploadError }) => {
         </div>
       )}
 
-      {isUploading && uploadProgress > 0 && (
+      {isUploading && (
         <div className="upload-progress">
-          <div className="progress-bar">
-            <div 
-              className="progress-fill" 
-              style={{ width: `${uploadProgress}%` }}
-            />
+          <div className="progress-bar-container">
+            <div className={`progress-bar ${uploadProgress === 0 ? 'indeterminate' : ''}`} 
+              style={{ width: uploadProgress > 0 ? `${uploadProgress}%` : '30%' }}
+            ></div>
           </div>
-          <span className="progress-text">{uploadProgress}%</span>
+          <span className="progress-text">
+            {uploadProgress > 0 ? `Uploading... ${uploadProgress}%` : 'Preparing upload...'}
+          </span>
         </div>
       )}
 
       <button
-        className="upload-button"
+        className={`upload-button ${isUploading ? 'btn-loading' : ''}`}
         onClick={handleUploadClick}
         disabled={(uploadMode === 'file' ? selectedFiles.length === 0 : urlList.length === 0) || isUploading}
       >
         {isUploading ? (
           <>
-            <span className="loading-spinner">⏳</span>
+            <span className="btn-loader"></span>
             Uploading...
           </>
         ) : (
-          <>Upload {uploadMode === 'file' 
-            ? (selectedFiles.length > 0 ? `(${selectedFiles.length})` : '')
-            : (urlList.length > 0 ? `(${urlList.length})` : '')}
+          <>
+            <span>📤 Upload</span>
+            {uploadMode === 'file' 
+              ? (selectedFiles.length > 0 ? ` (${selectedFiles.length})` : '')
+              : (urlList.length > 0 ? ` (${urlList.length})` : '')}
           </>
         )}
       </button>

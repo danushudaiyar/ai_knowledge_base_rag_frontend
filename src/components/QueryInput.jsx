@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import AnswerCard from './AnswerCard';
+import SkeletonLoader from './SkeletonLoader';
+import Loader from './Loader';
 
 const QueryInput = ({ onSubmit, placeholder = 'Ask a question about your documents...' }) => {
   const [query, setQuery] = useState('');
@@ -55,13 +57,19 @@ const QueryInput = ({ onSubmit, placeholder = 'Ask a question about your documen
           />
           <button
             type="submit"
-            className="query-submit-button"
+            className={`query-submit-button ${isLoading ? 'btn-loading' : ''}`}
             disabled={!query.trim() || isLoading}
           >
             {isLoading ? (
-              <span className="loading-spinner">⏳</span>
+              <>
+                <span className="btn-loader"></span>
+                <span>Searching...</span>
+              </>
             ) : (
-              <span className="submit-icon">🔍</span>
+              <>
+                <span className="submit-icon">🔍</span>
+                <span>Ask</span>
+              </>
             )}
           </button>
         </div>
@@ -74,12 +82,20 @@ const QueryInput = ({ onSubmit, placeholder = 'Ask a question about your documen
         </div>
       )}
 
-      {response && (
-        <AnswerCard 
-          answer={response.answer}
-          sources={response.sources}
-          query={response.query}
-        />
+      {isLoading && (
+        <div className="query-loading">
+          <SkeletonLoader variant="answer-card" />
+        </div>
+      )}
+
+      {!isLoading && response && (
+        <div className="query-result-fade-in">
+          <AnswerCard 
+            answer={response.answer}
+            sources={response.sources}
+            query={response.query}
+          />
+        </div>
       )}
     </div>
   );
