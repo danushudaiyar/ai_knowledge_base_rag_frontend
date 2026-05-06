@@ -4,12 +4,10 @@ import { askQuery } from '../services/api';
 
 const Dashboard = () => {
   const handleUpload = (files) => {
-    console.log('Uploading files:', files);
     // This will be called before API upload
   };
 
   const handleUploadSuccess = (results) => {
-    console.log('Upload successful:', results);
     // Handle successful upload (e.g., refresh document list, show notification)
   };
 
@@ -21,7 +19,6 @@ const Dashboard = () => {
   const handleQuery = async (question) => {
     try {
       const response = await askQuery(question);
-      console.log('Query response:', response);
       // Handle the response (e.g., display answer, navigate to results page)
     } catch (error) {
       console.error('Query error:', error);
